@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table>
+    {% for product in object_list %}
+    <tr><td>{{ product.title }}</td><td><img src="{{ product.image.url }}"></td><td>{{ product.description }}</td><td>Цена:{{ product.price }}</td><td>Осталось на складе:{{ product.amount }}</td></tr>
+    <br>
+    {% endfor %}
+<style>
+    img {
+        weight: 100px;
+        height: 100px;
+    }
+    td {
+        border: black solid 1px;
+        border-radius: 5px;
+        text-align: center;
+        max-width: 130px;
+        min-width: 100px;
+    }
+</style>
+</table>
+</body>
+</html>
