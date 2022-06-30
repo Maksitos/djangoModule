@@ -15,12 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from myMagaz.views import Main
+from myMagaz.views import Main, Registration, LoginPage, Logout, AddProduct, PurchaseProduct
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('magaz-main', Main.as_view())
+    path('magaz-main', Main.as_view()),
+    path('registration', Registration.as_view(), name='register'),
+    path('login', LoginPage.as_view(), name='login'),
+    path('logout/', Logout.as_view(), name='logout'),
+    path('add-product', AddProduct.as_view(), name='add-product'),
+    path('pur', PurchaseProduct.as_view(), name='purchase')
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

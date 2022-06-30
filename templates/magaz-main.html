@@ -1,13 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
 <table>
     {% for product in object_list %}
-    <tr><td>{{ product.title }}</td><td><img src="{{ product.image.url }}"></td><td>{{ product.description }}</td><td>Цена:{{ product.price }}</td><td>Осталось на складе:{{ product.amount }}</td></tr>
+    <tr><td>{{ product.title }}</td><td><img src="{{ product.image.url }}"></td><td>{{ product.description }}</td><td>Цена:{{ product.price }}</td><td>Осталось на складе:{{ product.amount }}</td>{% if user.is_authenticated %}<td>
+        <form method="post" action="{% url 'purchase' %}">
+            {% csrf_token %}
+            <input type="hidden" value="{{ product.pk }}" name="product_id">
+            <input type="number" class="purch" name="amount">
+            <button type="submit">Purchase</button>
+        </form> </td>
+    {% endif %}
+    </tr>
     <br>
     {% endfor %}
 <style>
@@ -22,7 +25,10 @@
         max-width: 130px;
         min-width: 100px;
     }
+    .purch {
+        max-width: 120px;
+    }
+
 </style>
 </table>
-</body>
-</html>
+{% endblock %}

@@ -16,7 +16,7 @@ class Product(models.Model):
 
 class Purchase(models.Model):
     client = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.DO_NOTHING)
     time = models.TimeField(auto_now=True)
     amount = models.IntegerField()
 
