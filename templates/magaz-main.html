@@ -2,13 +2,22 @@
 {% block content %}
 <table>
     {% for product in object_list %}
-    <tr><td>{{ product.title }}</td><td><img src="{{ product.image.url }}"></td><td>{{ product.description }}</td><td>Цена:{{ product.price }}</td><td>Осталось на складе:{{ product.amount }}</td>{% if user.is_authenticated %}<td>
+    <tr><td>{{ product.title }}</td>
+        {% if product.image %}
+        <td><img src="{{ product.image.url }}"></td>
+        {% else %}
+        <td>No photo</td>
+        {% endif %}
+        <td>{{ product.description }}</td><td>Цена:{{ product.price }}</td><td>Осталось на складе:{{ product.amount }}</td>{% if user.is_authenticated %}<td>
         <form method="post" action="{% url 'purchase' %}">
             {% csrf_token %}
             <input type="hidden" value="{{ product.pk }}" name="product_id">
             <input type="number" class="purch" name="amount">
             <button type="submit">Purchase</button>
         </form> </td>
+            {% if user.is_superuser %}<td>
+         <a href="{% url 'update' product.pk %}">UpdateProduct</a></td>
+    {% endif %}
     {% endif %}
     </tr>
     <br>

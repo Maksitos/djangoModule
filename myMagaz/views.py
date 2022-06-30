@@ -3,7 +3,10 @@ from django.views.generic import ListView, CreateView, View
 from django.contrib.auth.views import LoginView, LogoutView
 from .models import Product, MyUser, Purchase
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .forms import MyUserCreationForm, AddProduct, PurchaseForm
+from .forms import MyUserCreationForm, AddProduct
+from django.http import HttpResponseRedirect
+from django.views.generic.edit import UpdateView
+
 
 
 class AdminIsLoginMixin(UserPassesTestMixin):
@@ -40,13 +43,19 @@ class AddProduct(AdminIsLoginMixin, CreateView):
     success_url = 'add-product'
 
 
-class PurchaseProduct(CreateView):
-    model = Purchase
-    success_url = 'magaz-main'
+class PurchaseProduct(View):
     http_method_names = ['post']
 
     def post(self, request, *args, **kwargs):
         product = Product.objects.get(id=self.request.POST['product_id'])
         Purchase(client=self.request.user, product=product,
                  amount=self.request.POST['amount']).save()
-        return super().form_valid()
+
+        return HttpResponseRedirect('magaz-main')
+
+
+class UpdateProduct(UpdateView):
+    model = Product
+    fields = '__all__'
+    success_url = '/magaz-main'
+    template_name = 'add_product.html'
