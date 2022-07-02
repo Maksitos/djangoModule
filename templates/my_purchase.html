@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<table>
+    {% for purchase in object_list %}
+    <tr>
+        <td>{{ purchase.product.title }}</td>
+        <td>{{ purchase.amount }}</td>
+        <td>{{ purchase.time }}</td>
+    <td><form method="post" action="purchase-return">
+        <button type="submit">Вернуть</button>
+    </form></td>
+    </tr>
+    {% endfor %}
+</table>
+    <style>
+    td {
+        border: black solid 1px;
+        border-radius: 5px;
+        text-align: center;
+        max-width: 130px;
+        min-width: 100px;
+    }
+{% endblock %}

@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% if messages %}
+      {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
 <table>
     {% for product in object_list %}
     <tr><td>{{ product.title }}</td>
@@ -12,7 +17,7 @@
         <form method="post" action="{% url 'purchase' %}">
             {% csrf_token %}
             <input type="hidden" value="{{ product.pk }}" name="product_id">
-            <input type="number" class="purch" name="amount">
+            <input type="number" class="purch" name="amount" min="1">
             <button type="submit">Purchase</button>
         </form> </td>
             {% if user.is_superuser %}<td>
