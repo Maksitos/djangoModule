@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
+        {% if messages %}
+      {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
 <table>
     {% for purchase in object_list %}
     <tr>
@@ -7,6 +12,8 @@
         <td>{{ purchase.amount }}</td>
         <td>{{ purchase.time }}</td>
     <td><form method="post" action="purchase-return">
+        {% csrf_token %}
+        <input type="hidden" value="{{ purchase.pk }}" name="purchase_id">
         <button type="submit">Вернуть</button>
     </form></td>
     </tr>

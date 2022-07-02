@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from django.views.generic import ListView, CreateView, View
 from django.contrib.auth.views import LoginView, LogoutView
-from .models import Product, MyUser, Purchase
+from .models import Product, MyUser, Purchase, PurchaseReturn
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from .forms import MyUserCreationForm, AddProduct
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from django.views.generic.edit import UpdateView
 from django.db import transaction
-
+from django.utils import timezone
 
 
 
@@ -21,6 +21,7 @@ class Main(ListView):
     template_name = 'magaz-main.html'
     queryset = Product.objects.all().order_by('title')
     allow_empty = True
+
 
 class Registration(CreateView):
     model = MyUser
@@ -61,7 +62,7 @@ class PurchaseProduct(View):
                  amount=self.request.POST['amount']).save()
             wallet_sum = user.wallet - total_cost
             new_amount = product.amount - int(self.request.POST['amount'])
-            MyUser.objects.filter(username=user.username).update(wallet=wallet_sum)
+            MyUser.objects.filter(id=user.id).update(wallet=wallet_sum)
             messages.add_message(request,messages.INFO, 'Успешная покупка')
             Product.objects.filter(id=product.id).update(amount=new_amount)
         return HttpResponseRedirect('magaz-main')
@@ -77,21 +78,45 @@ class UpdateProduct(UpdateView):
 class MyPurchase(LoginRequiredMixin, ListView):
     template_name = 'my_purchase.html'
     allow_empty = True
-    ordering = None
 
     def get(self, request, *args, **kwargs):
         self.queryset = Purchase.objects.filter(client=request.user)
-        self.object_list = self.get_queryset()
-        allow_empty = self.get_allow_empty()
-        if not allow_empty:
-            if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
-                is_empty = not self.object_list.exists()
-            else:
-                is_empty = not self.object_list
-            if is_empty:
-                raise Http404(_('Empty list and “%(class_name)s.allow_empty” is False.') % {
-                    'class_name': self.__class__.__name__,
-                })
-        context = self.get_context_data()
-        return self.render_to_response(context)
+        return super().get(self, request, *args, **kwargs)
+
+
+class PurchaseReturns(View):
+
+    def post(self, request, *args, **kwargs):
+        purchase = Purchase.objects.get(id=self.request.POST['purchase_id'])
+        if (timezone.now() - purchase.time).seconds > 180:
+            messages.add_message(request, messages.INFO, 'Прошло более трех минут')
+        elif PurchaseReturn.objects.filter(purchase=purchase):
+            messages.add_message(request, messages.INFO, 'Данная покупка ожидает решение администрации по поводу возврата.')
+        else:
+            PurchaseReturn(purchase=purchase).save()
+        return HttpResponseRedirect('my-purchase')
+
+
+class PurchaseReturnsList(AdminIsLoginMixin, ListView):
+    template_name = 'purchase-return.html'
+    queryset = PurchaseReturn.objects.all()
+
+
+class PurchaseReturnsResult(View):
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        purchase_return = PurchaseReturn.objects.get(id=self.request.POST['return_id'])
+        purchase = Purchase.objects.get(id=purchase_return.purchase_id)
+        client = MyUser.objects.get(id=purchase.client_id)
+        if self.request.POST['action'] == 'approve':
+            total_cost = purchase.amount * purchase.product.price
+            wallet_sum = client.wallet + total_cost
+            new_amount = purchase.amount + purchase.product.amount
+            MyUser.objects.filter(id=client.id).update(wallet=wallet_sum)
+            Product.objects.filter(id=purchase.product_id).update(amount=new_amount)
+            purchase.delete()
+        else:
+            purchase_return.delete()
+        return HttpResponseRedirect('purchase-returns-list')
 

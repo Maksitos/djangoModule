@@ -17,7 +17,7 @@
         <form method="post" action="{% url 'purchase' %}">
             {% csrf_token %}
             <input type="hidden" value="{{ product.pk }}" name="product_id">
-            <input type="number" class="purch" name="amount" min="1">
+            <input type="number" class="purch" name="amount" min="1" value="1">
             <button type="submit">Purchase</button>
         </form> </td>
             {% if user.is_superuser %}<td>

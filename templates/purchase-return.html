@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+        {% if messages %}
+      {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+<table>
+    {% for return in object_list %}
+    <tr>
+        <td>{{ return.purchase.product.title }}</td>
+        <td>{{ return.purchase.amount }}</td>
+        <td>{{ return.time }}</td>
+    <td><form method="post" action="purchase-return-result">
+        {% csrf_token %}
+        <input type="hidden" value="{{ return.pk }}" name="return_id">
+        <button type="submit" name="action" value="approve">Подтвердить</button>
+        <button type="submit" name="action" value="reject">Отказать</button>
+    </form></td>
+    </tr>
+    {% endfor %}
+</table>
+    <style>
+    td {
+        border: black solid 1px;
+        border-radius: 5px;
+        text-align: center;
+        max-width: 130px;
+        min-width: 100px;
+    }
+{% endblock %}

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from myMagaz.views import Main, MyPurchase, UpdateProduct, Registration, LoginPage, Logout, AddProduct, PurchaseProduct
+from myMagaz.views import Main, MyPurchase, PurchaseReturnsResult, PurchaseReturnsList, PurchaseReturns, UpdateProduct, Registration, LoginPage, Logout, AddProduct, PurchaseProduct
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -29,6 +29,8 @@ urlpatterns = [
     path('pur', PurchaseProduct.as_view(), name='purchase'),
     path('<pk>/update', UpdateProduct.as_view(), name='update'),
     path('my-purchase', MyPurchase.as_view(), name='my-purchase'),
-
+    path('purchase-return', PurchaseReturns.as_view(), name='purchase-return'),
+    path('purchase-returns-list', PurchaseReturnsList.as_view(), name='purchase-returns-list'),
+    path('purchase-return-result', PurchaseReturnsResult.as_view(), name='purchase-return-result')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
