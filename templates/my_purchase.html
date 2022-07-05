@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+        {% if messages %}
+      {% for message in messages %}
+    <p>{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+<table>
+    {% for purchase in object_list %}
+    <tr>
+        <td>{{ purchase.product.title }}</td>
+        <td>{{ purchase.amount }}</td>
+        <td>{{ purchase.time }}</td>
+    <td><form method="post" action="purchase-return">
+        {% csrf_token %}
+        <input type="hidden" value="{{ purchase.pk }}" name="purchase_id">
+        <button type="submit">Вернуть</button>
+    </form></td>
+    </tr>
+    {% endfor %}
+</table>
+        <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; first</a>
+            <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+        {% endif %}
+    </span>
+</div>
+    <style>
+    td {
+        border: black solid 1px;
+        border-radius: 5px;
+        text-align: center;
+        max-width: 130px;
+        min-width: 100px;
+    }
+{% endblock %}

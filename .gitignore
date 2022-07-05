@@ -1,3 +1,8 @@
 /.idea/
 /venv/
-/someMagaz/__pycache__/
+/myMagaz/__pycache__/
+/__pycache__/
+/myMagaz/migrations/__pycache__/
+/media/
+/myMagaz/__pycache__/
+someMagaz/__pycache__/
