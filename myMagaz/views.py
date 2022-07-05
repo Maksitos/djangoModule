@@ -21,13 +21,14 @@ class Main(ListView):
     template_name = 'magaz-main.html'
     queryset = Product.objects.all().order_by('title')
     allow_empty = True
+    paginate_by = 10
 
 
 class Registration(CreateView):
     model = MyUser
     template_name = 'registration.html'
     form_class = MyUserCreationForm
-    success_url = 'magaz-main'
+    success_url = '/'
 
 
 class LoginPage(LoginView):
@@ -35,7 +36,7 @@ class LoginPage(LoginView):
 
 
 class Logout(LoginRequiredMixin, LogoutView):
-    next_page = '/magaz-main'
+    next_page = '/'
 
 
 class AddProduct(AdminIsLoginMixin, CreateView):
@@ -56,7 +57,7 @@ class PurchaseProduct(View):
         if total_cost > user.wallet:
             messages.add_message(request, messages.INFO, 'Недостаточно средств.')
         elif product.amount < int(self.request.POST['amount']):
-            messages.add_message(request,messages.INFO, 'На складе не хватает товара для подобной покупки.')
+            messages.add_message(request, messages.INFO, 'На складе не хватает товара для подобной покупки.')
         else:
             Purchase(client=user, product=product,
                  amount=self.request.POST['amount']).save()
@@ -65,22 +66,23 @@ class PurchaseProduct(View):
             MyUser.objects.filter(id=user.id).update(wallet=wallet_sum)
             messages.add_message(request,messages.INFO, 'Успешная покупка')
             Product.objects.filter(id=product.id).update(amount=new_amount)
-        return HttpResponseRedirect('magaz-main')
+        return HttpResponseRedirect('/')
 
 
 class UpdateProduct(UpdateView):
     model = Product
     fields = '__all__'
-    success_url = '/magaz-main'
+    success_url = '/'
     template_name = 'add_product.html'
 
 
 class MyPurchase(LoginRequiredMixin, ListView):
     template_name = 'my_purchase.html'
     allow_empty = True
+    paginate_by = 20
 
     def get(self, request, *args, **kwargs):
-        self.queryset = Purchase.objects.filter(client=request.user)
+        self.queryset = Purchase.objects.filter(client=request.user).order_by('-time')
         return super().get(self, request, *args, **kwargs)
 
 
@@ -100,6 +102,7 @@ class PurchaseReturns(View):
 class PurchaseReturnsList(AdminIsLoginMixin, ListView):
     template_name = 'purchase-return.html'
     queryset = PurchaseReturn.objects.all()
+    paginate_by = 10
 
 
 class PurchaseReturnsResult(View):
